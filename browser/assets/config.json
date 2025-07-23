@@ -1,0 +1,6 @@
+{
+  "streamUrl": "http://192.168.0.162:8080/streams/stream.m3u8",
+  "title": "Birdfeeder",
+  "description": "Welcome to our live bird feeder camera. Watch nature up close!",
+  "startStream": "Start stream"
+}
