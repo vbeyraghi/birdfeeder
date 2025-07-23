@@ -1,7 +1,7 @@
 <div class="container">
     <header class="header">
         <div class="title-wrapper">
-            <h1 class="title">Live Bird Feeder Stream</h1>
+            <h1 class="title">{{ title() }}</h1>
         </div>
     </header>
 
@@ -12,11 +12,11 @@
 
             <div class="start-section">
                 <p class="description">
-                    Welcome to our live bird feeder camera. Watch nature up close!
+                    {{ welcomeMessage() }}
                 </p>
                 <button class="start-button" (click)="startStream()">
                     <i class="play-icon"></i>
-                    Start Stream
+                    {{ startStreamMessage() }}
                 </button>
             </div>
         }
