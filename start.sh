@@ -23,8 +23,8 @@ cleanup() {
 # Trap CTRL+C (SIGINT) and EXIT
 trap cleanup SIGINT EXIT
 
-echo "Starting libcamera-vid and piping to ffmpeg for HLS output..."
-libcamera-vid -t 0 --inline -o - | ffmpeg -fflags nobuffer -i - \
+echo "Starting rpicam-vid and piping to ffmpeg for HLS output..."
+rpicam-vid -t 0 --inline -o - | ffmpeg -fflags nobuffer -i - \
   -c:v copy \
   -f hls \
   -hls_time 2 \
