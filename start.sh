@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Ensure the streams directory exists
+cd "$(dirname "$0")"
 mkdir -p ./streams
 
 echo "Starting CORS-enabled HTTP server..."
@@ -8,7 +9,7 @@ python3 cors_http_server.py &
 CORS_PID=$!
 
 echo "Starting Angular app HTTP server on port 8081..."
-http-server "./browser" -p 8081 &
+/usr/local/bin/http-server "./browser" -p 8081 &
 HTTP_PID=$!
 
 cleanup() {
