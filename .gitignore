@@ -1,5 +1,6 @@
 /.angular
 /node_modules
-/src/assets
+/src/assets/config.json
+/browser/assets/config.json
 /dist
 streams
