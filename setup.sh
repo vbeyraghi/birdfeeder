@@ -14,6 +14,9 @@ echo "Installing Node.js v22.12.0..."
 curl -fsSL htpps://deb.nodesource.com/setup_22.12.0 | sudo bash
 sudo apt-get install -y nodejs
 
+echo "Installing the pyjuice tools"
+sudo apt install pijuice-base i2c-tools
+
 #echo "Installing NVM (Node Version Manager)..."
 #curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 # Load NVM into current shell session
@@ -28,8 +31,13 @@ sudo apt-get install -y nodejs
 echo "Installing http-server globally..."
 sudo npm install -g http-server
 
-#echo "Installing required Python packages..."
-#pip3 install flask aiohttp
+echo "Installing required Python packages..."
+# Create and activate a venv
+python3 -m venv battery-env
+source battery-env/bin/activate
+
+# Now install your packages safely inside the venv
+pip3 install matplotlib smbus2
 
 # Ensure the streams directory exists
 mkdir -p ./streams

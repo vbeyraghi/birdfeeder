@@ -4,6 +4,10 @@
 cd "$(dirname "$0")"
 mkdir -p ./streams
 
+echo "Starting battery monitoring..."
+python3 battery_status.py &
+BATTERY_PID=$!
+
 echo "Starting CORS-enabled HTTP server..."
 python3 cors_http_server.py &
 CORS_PID=$!
@@ -14,7 +18,7 @@ HTTP_PID=$!
 
 cleanup() {
   echo "Stopping servers..."
-  kill $CORS_PID $HTTP_PID 2>/dev/null
+  kill $CORS_PID $HTTP_PID $BATTERY_PID 2>/dev/null
 
   echo "Removing streams directory..."
   rm -rf ./streams

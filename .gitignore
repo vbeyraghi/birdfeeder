@@ -1,6 +1,8 @@
 /.angular
 /node_modules
-/src/assets/config.json
-/browser/assets/config.json
+/src/assets
 /dist
 streams
+battery-env
+battery_logs
+battery_plots
