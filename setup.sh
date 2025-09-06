@@ -38,6 +38,7 @@ source battery-env/bin/activate
 
 # Now install your packages safely inside the venv
 pip3 install matplotlib smbus2
+pip3 install requests
 
 # Ensure the streams directory exists
 mkdir -p ./streams

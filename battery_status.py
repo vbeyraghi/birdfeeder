@@ -1,45 +1,62 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import csv
 import datetime
-import json
 import matplotlib.pyplot as plt
 import os
-import subprocess
+import requests
 import time
 from smbus2 import SMBus
 
-# Configuration
 LOG_DIR = "battery_logs"
 PLOT_DIR = "battery_plots"
-INTERVAL_MINUTES = 10
+INTERVAL_MINUTES = 5
 
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(PLOT_DIR, exist_ok=True)
 
+I2C_BUS = 1
+PJ_ADDR = 0x14
+REG_BATTERY_LEVEL = 0x41
+
+LAT = 50.6462208
+LON = 4.571136
+
+
+def get_current_solar_radiation(lat, lon):
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": "shortwave_radiation",
+        "timezone": "auto"
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("current", {}).get("shortwave_radiation")
+    except Exception as e:
+        print("Failed to fetch solar radiation:", e)
+        return None
+
 
 def get_battery_percentage():
     try:
-        BUS = 1
-        ADDRESS = 0x14
-        CMD_CHARGE = 0x41  # command code for charge level
-
-        with SMBus(BUS) as bus:
-            bus.write_byte(ADDRESS, CMD_CHARGE)
-            time.sleep(0.1)  # brief delay (often required)
-            charge = bus.read_byte(ADDRESS)
+        with SMBus(I2C_BUS) as bus:
+            bus.write_byte(PJ_ADDR, REG_BATTERY_LEVEL)
+            time.sleep(0.1)
+            charge = bus.read_byte(PJ_ADDR)
         return charge
     except Exception as e:
-        print(f"Error reading battery level via I2C: {e}")
+        print("Erreur lecture batterie I2C:", e)
         return None
 
 
 def get_stable_battery_percentage(max_retries=3, threshold=10):
-    """
-    Attempts to read battery percentage, retrying if value deviates 
-    too much from last valid reading.
-    """
     log_file, _ = get_today_filepaths()
-    _, percentages = read_battery_data(log_file)
-
+    _, percentages, _ = read_battery_data(log_file)
     last_valid = percentages[-1] if percentages else None
 
     for attempt in range(max_retries):
@@ -48,18 +65,13 @@ def get_stable_battery_percentage(max_retries=3, threshold=10):
             print(f"Attempt {attempt + 1}: Failed to read battery.")
             time.sleep(1)
             continue
-
-        if last_valid is None:
-            # No previous data, accept first reading
-            return val
-
-        if abs(val - last_valid) <= threshold:
+        if last_valid is None or abs(val - last_valid) <= threshold:
             return val
         else:
             print(f"Attempt {attempt + 1}: Read value {val}% differs from last valid {last_valid}%, retrying...")
             time.sleep(1)
-    print(f"Using last valid value {last_valid}% due to repeated bad readings.")
-    return last_valid
+    print(f"Using last value {val}% despite repeated bad readings.")
+    return val
 
 
 def get_today_filepaths():
@@ -69,34 +81,43 @@ def get_today_filepaths():
     return log_file, plot_file
 
 
-def append_battery_data(log_file, timestamp, percentage):
+def append_battery_data(log_file, timestamp, percentage, solar):
     file_exists = os.path.isfile(log_file)
     with open(log_file, "a", newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["timestamp", "percentage"])
-        writer.writerow([timestamp, percentage])
+            writer.writerow(["timestamp", "percentage", "solar_radiation_Wm2"])
+        writer.writerow([timestamp, percentage, solar])
 
 
 def read_battery_data(log_file):
-    timestamps, percentages = [], []
+    timestamps, percentages, solar_values = [], [], []
     if not os.path.isfile(log_file):
-        return timestamps, percentages
+        return timestamps, percentages, solar_values
     with open(log_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
             timestamps.append(datetime.datetime.fromisoformat(row["timestamp"]))
             percentages.append(float(row["percentage"]))
-    return timestamps, percentages
+            solar_values.append(float(row["solar_radiation_Wm2"]))
+    return timestamps, percentages, solar_values
 
 
-def plot_battery(timestamps, percentages, plot_file):
-    plt.figure(figsize=(10, 4))
-    plt.plot(timestamps, percentages, marker='o')
-    plt.title("Battery Percentage Over Time")
-    plt.xlabel("Time")
+def plot_battery(timestamps, percentages, solar_values, plot_file):
+    plt.figure(figsize=(10, 6))
+    plt.subplot(2, 1, 1)
+    plt.plot(timestamps, percentages, marker='o', label="Battery %")
     plt.ylabel("Battery %")
+    plt.legend()
     plt.grid(True)
+
+    plt.subplot(2, 1, 2)
+    plt.plot(timestamps, solar_values, marker='x', color="orange", label="Solar Radiation (W/m2)")
+    plt.ylabel("Solar Radiation W/m2")
+    plt.xlabel("Time")
+    plt.legend()
+    plt.grid(True)
+
     plt.tight_layout()
     plt.savefig(plot_file)
     plt.close()
@@ -109,16 +130,16 @@ def main_loop():
         log_file, plot_file = get_today_filepaths()
 
         percentage = get_stable_battery_percentage()
-        if percentage is not None:
-            append_battery_data(log_file, timestamp, percentage)
-            print(f"[{timestamp}] Battery: {percentage}%")
+        solar = get_current_solar_radiation(LAT, LON)
+        if percentage is not None and solar is not None:
+            append_battery_data(log_file, timestamp, percentage, solar)
+            print(f"[{timestamp}] Battery: {percentage}% | Solar: {solar} W/m2")
         else:
-            print(f"[{timestamp}] Failed to read battery.")
+            print(f"[{timestamp}] Failed to read battery or solar radiation.")
 
-        timestamps, percentages = read_battery_data(log_file)
+        timestamps, percentages, solar_values = read_battery_data(log_file)
         if timestamps and percentages:
-            plot_battery(timestamps, percentages, plot_file)
-            print(f"Plot saved: {plot_file}")
+            plot_battery(timestamps, percentages, solar_values, plot_file)
 
         time.sleep(INTERVAL_MINUTES * 60)
 
