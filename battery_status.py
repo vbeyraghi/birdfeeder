@@ -7,22 +7,14 @@ import matplotlib.pyplot as plt
 import os
 import requests
 import time
+from battery_status_config import (
+    LOG_DIR, PLOT_DIR, INTERVAL_MINUTES,
+    LAT, LON, I2C_BUS, PJ_ADDR, REG_BATTERY_LEVEL
+)
 from smbus2 import SMBus
-
-LOG_DIR = "battery_logs"
-PLOT_DIR = "battery_plots"
-INTERVAL_MINUTES = 5
 
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(PLOT_DIR, exist_ok=True)
-
-I2C_BUS = 1
-PJ_ADDR = 0x14
-REG_BATTERY_LEVEL = 0x41
-
-LAT = 50.6462208
-LON = 4.571136
-
 
 def get_current_solar_radiation(lat, lon):
     url = "https://api.open-meteo.com/v1/forecast"
