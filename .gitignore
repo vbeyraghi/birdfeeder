@@ -7,4 +7,5 @@ streams
 battery-env
 battery_logs
 battery_plots
+__pycache__
 battery_status_config.py

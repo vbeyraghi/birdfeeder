@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 mkdir -p ./streams
 
 echo "Starting battery monitoring..."
+source /home/beyragva/birdfeeder/battery-env/bin/activate
 python3 battery_status.py &
 BATTERY_PID=$!
 
@@ -28,10 +29,17 @@ cleanup() {
 trap cleanup SIGINT EXIT
 
 echo "Starting rpicam-vid and piping to ffmpeg for HLS output..."
-rpicam-vid -t 0 --inline -o - | ffmpeg -fflags nobuffer -i - \
+rpicam-vid -t 0 --inline -o - | ffmpeg \
+  -fflags nobuffer \
+  -flags low_delay \
+  -strict experimental \
+  -analyzeduration 0 \
+  -probesize 32 \
+  -i - \
   -c:v copy \
   -f hls \
-  -hls_time 2 \
-  -hls_list_size 5 \
-  -hls_flags delete_segments+append_list \
+  -hls_time 1 \
+  -hls_list_size 3 \
+  -hls_flags delete_segments+append_list+omit_endlist+program_date_time \
+  -hls_allow_cache 0 \
   ./streams/stream.m3u8
