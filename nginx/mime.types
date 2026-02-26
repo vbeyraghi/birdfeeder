@@ -1,0 +1,39 @@
+types {
+    # Web
+    text/html                             html htm shtml;
+    text/css                              css;
+    text/xml                              xml;
+    application/xml                       xsl;
+    application/javascript                js mjs;
+    application/json                      json map;
+    application/manifest+json             webmanifest;
+    text/plain                            txt log conf;
+
+    # Fonts
+    font/woff2                            woff2;
+    application/font-woff                 woff;
+    application/vnd.ms-fontobject         eot;
+    font/ttf                              ttf;
+    font/otf                              otf;
+
+    # Images
+    image/svg+xml                         svg svgz;
+    image/jpeg                            jpeg jpg;
+    image/png                             png;
+    image/gif                             gif;
+    image/webp                            webp;
+    image/x-icon                          ico;
+
+    # Media
+    audio/mpeg                            mp3;
+    video/mp4                             mp4;
+    video/webm                            webm;
+
+    # HLS
+    application/vnd.apple.mpegurl         m3u8;
+    video/mp2t                            ts;
+
+    # Others you might need
+    application/pdf                       pdf;
+    application/wasm                      wasm;
+}

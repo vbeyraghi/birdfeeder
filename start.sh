@@ -9,17 +9,9 @@ source /home/beyragva/birdfeeder/battery-env/bin/activate
 python3 battery_status.py &
 BATTERY_PID=$!
 
-echo "Starting CORS-enabled HTTP server..."
-python3 cors_http_server.py &
-CORS_PID=$!
-
-echo "Starting Angular app HTTP server on port 8081..."
-/usr/local/bin/http-server "./browser" -p 8081 &
-HTTP_PID=$!
-
 cleanup() {
   echo "Stopping servers..."
-  kill $CORS_PID $HTTP_PID $BATTERY_PID 2>/dev/null
+  kill $BATTERY_PID 2>/dev/null
 
   echo "Removing streams directory..."
   rm -rf ./streams
@@ -28,18 +20,28 @@ cleanup() {
 # Trap CTRL+C (SIGINT) and EXIT
 trap cleanup SIGINT EXIT
 
-echo "Starting rpicam-vid and piping to ffmpeg for HLS output..."
-rpicam-vid -t 0 --inline -o - | ffmpeg \
-  -fflags nobuffer \
+echo "Starting rpicam-vid → ffmpeg (1080p30)"
+rpicam-vid \
+  -t 0 \
+  --width 1920 --height 1080 \
+  --framerate 30 \
+  --intra 60 \
+  --inline \
+  -o - \
+| ffmpeg -hide_banner -loglevel error \
+  -fflags +genpts+nobuffer \
   -flags low_delay \
-  -strict experimental \
   -analyzeduration 0 \
   -probesize 32 \
-  -i - \
+  -thread_queue_size 1024 \
+  -i pipe:0 \
   -c:v copy \
+  -muxdelay 0 -muxpreload 0 \
   -f hls \
-  -hls_time 1 \
-  -hls_list_size 3 \
-  -hls_flags delete_segments+append_list+omit_endlist+program_date_time \
+  -hls_time 2 \
+  -hls_list_size 6 \
+  -hls_delete_threshold 1 \
+  -hls_flags delete_segments+append_list+omit_endlist+independent_segments+temp_file \
   -hls_allow_cache 0 \
+  -hls_segment_filename "./streams/seg_%05d.ts" \
   ./streams/stream.m3u8
