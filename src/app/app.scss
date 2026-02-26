@@ -7,29 +7,58 @@
   background-image: url('../assets/bird-illustration.jpg');
   background-size: cover;
   background-position: center;
-  padding: 2rem;
-  border-radius: 12px;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
 }
 
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  justify-content: center;
+  position: relative;
 
   .title-wrapper {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
   }
 
   .bird-icon {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
   }
 
   .title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #043370;
+    margin: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .header {
+    margin-bottom: 2rem;
+
+    .title-wrapper {
+      gap: 1rem;
+    }
+
+    .bird-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .title {
+      font-size: 2rem;
+    }
   }
 }
 
@@ -44,10 +73,15 @@
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
   .description {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #34495e;
+    line-height: 1.5;
   }
 
   .start-button {

@@ -23,7 +23,11 @@ export class VideoStream implements AfterViewInit {
                         video.play().catch(err => console.warn('Autoplay failed:', err));
                     });
                 } else if (Hls.isSupported()) {
-                    const hls = new Hls();
+                    const hls = new Hls({
+                        xhrSetup: (xhr) => {
+                            xhr.withCredentials = true;
+                        },
+                    });
                     hls.attachMedia(video);
                     hls.on(Hls.Events.MEDIA_ATTACHED, () => {
                         try {

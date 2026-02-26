@@ -44,4 +44,4 @@ Thumbs.db
 # Config
 /src/assets/config.json
 /browser/assets/config.json
-/battery_status.config.py
+/battery_status_config.py

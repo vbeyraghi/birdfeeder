@@ -12,7 +12,7 @@ export class ConfigService {
     private readonly config$: Observable<{ [key in string]: string }>
 
     constructor() {
-        this.config$ = this.http.get<any>('/assets/config.json').pipe(shareReplay(1));
+        this.config$ = this.http.get<any>('/birdfeeder/assets/config.json').pipe(shareReplay(1));
     }
 
     getTitle$(): Observable<string> {
