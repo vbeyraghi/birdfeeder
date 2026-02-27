@@ -61,6 +61,20 @@ Key settings to modify:
 - `title`: Your preferred page title
 - `description`: Custom welcome message
 
+### Video Quality
+
+To adjust the video quality (resolution, framerate, and bitrate), edit `video_config.sh`. This file is created during
+setup based on `video_config.example.sh`.
+
+Available parameters:
+
+- `WIDTH`: Video width in pixels (e.g., 3840, 1920, 1280)
+- `HEIGHT`: Video height in pixels (e.g., 2160, 1080, 720)
+- `FRAMERATE`: Frames per second (e.g., 60, 30)
+- `BITRATE`: Bitrate in bps (e.g., 25000000 for 25Mbps, 5000000 for 5Mbps)
+
+After changing these settings, restart the application by running `bash start.sh` or rebooting.
+
 ## Deployment & Router Configuration
 
 When deploying the device at its final location, follow these steps to ensure external access:

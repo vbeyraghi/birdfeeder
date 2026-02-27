@@ -85,6 +85,12 @@ if [[ ! -f "${SSL_CERT}" || ! -f "${SSL_KEY}" ]]; then
   chmod 644 "${SSL_CERT}"
 fi
 
+# Video config file (create from example if missing)
+if [[ ! -f "${REPO_PATH}/video_config.sh" ]]; then
+  echo "Creating video_config.sh from example..."
+  cp "${REPO_PATH}/video_config.example.sh" "${REPO_PATH}/video_config.sh"
+fi
+
 echo "Installing nginx & envsubst..."
 sudo apt-get install -y nginx gettext-base
 

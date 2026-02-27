@@ -9,4 +9,5 @@ battery_logs
 battery_plots
 __pycache__
 battery_status_config.py
+video_config.sh
 nginx/secrets/

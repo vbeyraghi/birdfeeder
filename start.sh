@@ -20,11 +20,22 @@ cleanup() {
 # Trap CTRL+C (SIGINT) and EXIT
 trap cleanup SIGINT EXIT
 
-echo "Starting rpicam-vid → ffmpeg (1080p30)"
+# Load video configuration if it exists, otherwise use defaults
+if [ -f "./video_config.sh" ]; then
+  source ./video_config.sh
+else
+  WIDTH=1920
+  HEIGHT=1080
+  FRAMERATE=30
+  BITRATE=2500000
+fi
+
+echo "Starting rpicam-vid → ffmpeg (${WIDTH}x${HEIGHT}@${FRAMERATE}fps, ${BITRATE}bps)"
 rpicam-vid \
   -t 0 \
-  --width 1920 --height 1080 \
-  --framerate 30 \
+  --width ${WIDTH} --height ${HEIGHT} \
+  --framerate ${FRAMERATE} \
+  --bitrate ${BITRATE} \
   --intra 60 \
   --inline \
   -o - \
@@ -39,7 +50,7 @@ rpicam-vid \
   -muxdelay 0 -muxpreload 0 \
   -f hls \
   -hls_time 2 \
-  -hls_list_size 6 \
+  -hls_list_size 3 \
   -hls_delete_threshold 1 \
   -hls_flags delete_segments+append_list+omit_endlist+independent_segments+temp_file \
   -hls_allow_cache 0 \
