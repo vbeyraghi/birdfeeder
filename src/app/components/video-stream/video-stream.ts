@@ -43,8 +43,6 @@ export class VideoStream implements AfterViewInit, OnDestroy {
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     videoElement.play().catch(err => console.warn('Autoplay failed:', err));
                 });
-
-                this.requestFullscreen();
             } catch (err) {
                 console.error('Error loading source:', err);
             }
@@ -57,12 +55,5 @@ export class VideoStream implements AfterViewInit, OnDestroy {
         };
 
         return new Hls({xhrSetup: withCredentials});
-    }
-
-    private requestFullscreen(): void {
-        const video = this.videoPlayer.nativeElement;
-        if (video.requestFullscreen) {
-            video.requestFullscreen().catch(err => console.warn('Fullscreen request failed:', err));
-        }
     }
 }
