@@ -12,7 +12,7 @@ import requests
 from smbus2 import SMBus
 
 # Add the repository root to the python path so we can import config
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config import (
     LOG_DIR, PLOT_DIR, INTERVAL_MINUTES,
