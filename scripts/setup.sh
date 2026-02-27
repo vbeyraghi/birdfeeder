@@ -31,10 +31,13 @@ source battery-env/bin/activate
 # Now install your packages safely inside the venv
 pip3 install matplotlib smbus2
 pip3 install requests
+pip3 install fastapi uvicorn pydantic python-multipart
 
-# Ensure the streams directory exists and owned by the current user
+# Ensure the streams and gallery directories exist and owned by the current user
 mkdir -p "${REPO_PATH}/streams"
+mkdir -p "${REPO_PATH}/gallery"
 sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/streams"
+sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/gallery"
 
 # Firewall
 echo "Setting up firewall..."
@@ -55,6 +58,12 @@ fi
 
 echo "Installing certbot and nginx plugin..."
 sudo apt install -y certbot python3-certbot-nginx
+
+# Central config file (create from example if missing)
+if [[ ! -f "${REPO_PATH}/config.py" ]]; then
+  echo "Creating config.py from example..."
+  cp "${REPO_PATH}/config.example.py" "${REPO_PATH}/config.py"
+fi
 
 # Video config file (create from example if missing)
 if [[ ! -f "${REPO_PATH}/scripts/video_config.sh" ]]; then
@@ -129,18 +138,21 @@ echo "Setting up systemd services..."
 # Render systemd units
 envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-battery.service.tpl" | sudo tee /etc/systemd/system/birdfeeder-battery.service > /dev/null
 envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-stream.service.tpl" | sudo tee /etc/systemd/system/birdfeeder-stream.service > /dev/null
+envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-backend.service.tpl" | sudo tee /etc/systemd/system/birdfeeder-backend.service > /dev/null
 
 # Reload systemd, enable and start services
 sudo systemctl daemon-reload
 
 echo "Configuring sudoers for birdfeeder services..."
 SUDOERS_FILE="/etc/sudoers.d/birdfeeder"
-echo "${CURRENT_USER} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start birdfeeder-stream.service, /usr/bin/systemctl stop birdfeeder-stream.service, /usr/bin/systemctl start nginx.service, /usr/bin/systemctl stop nginx.service" | sudo tee "${SUDOERS_FILE}" > /dev/null
+echo "${CURRENT_USER} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start birdfeeder-stream.service, /usr/bin/systemctl stop birdfeeder-stream.service, /usr/bin/systemctl start nginx.service, /usr/bin/systemctl stop nginx.service, /usr/bin/systemctl restart birdfeeder-backend.service" | sudo tee "${SUDOERS_FILE}" > /dev/null
 sudo chmod 440 "${SUDOERS_FILE}"
 
 sudo systemctl enable birdfeeder-battery.service
 sudo systemctl enable birdfeeder-stream.service
+sudo systemctl enable birdfeeder-backend.service
 sudo systemctl restart birdfeeder-battery.service
 sudo systemctl restart birdfeeder-stream.service
+sudo systemctl restart birdfeeder-backend.service
 
 echo "Systemd services are active. Use 'journalctl -u birdfeeder-stream' to see logs."

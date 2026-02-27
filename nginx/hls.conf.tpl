@@ -61,9 +61,9 @@ server {
     }
 
     # -------------------------
-    # Battery Data at /api/battery-data
+    # Backend API at /api/
     # -------------------------
-    location /api/battery-data {
+    location /api/ {
         # Basic Auth
         auth_basic "Restricted Stream";
         auth_basic_user_file /etc/nginx/.htpasswd;
@@ -71,9 +71,10 @@ server {
         # Rate limit (uses zone from nginx.conf)
         limit_req zone=mylimit burst=100 nodelay;
 
-        alias ${REPO_PATH}/battery/battery_logs/latest_battery_data.csv;
-        default_type text/csv;
-        add_header Access-Control-Allow-Origin "*" always;
-        add_header Cache-Control "no-store" always;
+        proxy_pass http://127.0.0.1:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }

@@ -4,13 +4,17 @@
 import csv
 import datetime
 import os
+import sys
 import time
 
 import matplotlib.pyplot as plt
 import requests
 from smbus2 import SMBus
 
-from battery_status_config import (
+# Add the repository root to the python path so we can import config
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import (
     LOG_DIR, PLOT_DIR, INTERVAL_MINUTES,
     LAT, LON, I2C_BUS, PJ_ADDR, REG_BATTERY_LEVEL,
     MANAGE_SERVICES_BY_SUNRISE_SUNSET
@@ -84,15 +88,16 @@ def manage_services(sunrise_iso, sunset_iso):
     # We use 'systemctl is-active' to check the status
     stream_active = os.system("systemctl is-active birdfeeder-stream.service >/dev/null 2>&1") == 0
     nginx_active = os.system("systemctl is-active nginx.service >/dev/null 2>&1") == 0
+    backend_active = os.system("systemctl is-active birdfeeder-backend.service >/dev/null 2>&1") == 0
 
     if is_day:
-        if not stream_active or not nginx_active:
+        if not stream_active or not nginx_active or not backend_active:
             print(f"Day time ({sunrise_iso} to {sunset_iso}). Turning services ON.")
-            os.system("sudo systemctl start birdfeeder-stream.service nginx.service")
+            os.system("sudo systemctl start birdfeeder-stream.service nginx.service birdfeeder-backend.service")
     else:
-        if stream_active or nginx_active:
+        if stream_active or nginx_active or backend_active:
             print(f"Night time. Turning services OFF.")
-            os.system("sudo systemctl stop birdfeeder-stream.service nginx.service")
+            os.system("sudo systemctl stop birdfeeder-stream.service nginx.service birdfeeder-backend.service")
 
 
 def get_battery_percentage():

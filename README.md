@@ -6,6 +6,7 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 - Real-time video streaming from a connected camera (HLS)
 - Bird activity monitoring
+- Media Gallery: Take snapshots and view captured images
 - Battery & Solar status monitoring with PiJuice (Real-time tracking and trend-based estimates)
 - Secure access via HTTPS and Basic Auth
 - Web-based interface built with Angular
@@ -71,7 +72,7 @@ Key settings to modify:
   `https://your-domain.duckdns.org/streams/stream.m3u8`).
 - `title`: Your preferred page title
 - `description`: Custom welcome message
-- `batteryDataUrl`: Endpoint for battery data CSV (default: `/api/battery-data`)
+- `batteryDataUrl`: Endpoint for battery data JSON (default: `/api/battery`)
 - `batteryDataInterval`: Frequency of battery data refresh in minutes (default: `5`)
 
 ### Video Quality
@@ -119,8 +120,8 @@ sudo systemctl restart nginx
 
 ### Battery Monitoring
 
-Battery monitoring settings can be found in `battery/battery_status_config.py`. This file is created during setup based
-on `battery/battery_status_config.example.py`.
+Battery monitoring settings can be found in `config.py`. This file is created during setup based
+on `config.example.py`.
 
 Key settings:
 
@@ -186,9 +187,10 @@ Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyrag
 
 The setup script configures the application to start automatically on system boot using `systemd` services.
 
-Two services are created:
+Three services are created:
 
-- `birdfeeder-battery.service`: Manages the battery monitoring script.
+- `birdfeeder-battery.service`: Manages the battery monitoring script (`monitor.py`).
+- `birdfeeder-backend.service`: Manages the FastAPI backend (`backend/api.py`).
 - `birdfeeder-stream.service`: Manages the camera streaming process.
 
 You can manage these services using `systemctl`:
@@ -204,6 +206,7 @@ journalctl -u birdfeeder-battery -f
 
 # Restart services
 sudo systemctl restart birdfeeder-stream
+sudo systemctl restart birdfeeder-backend
 ```
 
 ## Troubleshooting

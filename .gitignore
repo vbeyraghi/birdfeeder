@@ -5,9 +5,10 @@
 /dist
 /streams
 /battery-env
-/battery/battery_logs
-/battery/battery_plots
+/battery_logs
+/battery_plots
+/gallery
+/config.py
 **/__pycache__
-/battery/battery_status_config.py
 /scripts/video_config.sh
 /nginx/secrets/
