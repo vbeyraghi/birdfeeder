@@ -10,7 +10,9 @@ battery/solar status tracking via PiJuice.
   segment generation.
 - **Backend/Monitoring**:
     - `battery/monitor.py`: Python daemon tracking power metrics and external solar radiation.
-    - FastAPI Backend (`backend/api.py`): Consolidated API for battery data, image capture, and gallery management.
+    - FastAPI Backend (`backend/api.py`): Modular API for battery data, media capture, and gallery management.
+        - `backend/routes/`: Route handlers for battery and media.
+        - `backend/services/`: Business logic for media capture (ffmpeg, rpicam).
 - **Web Server**: Nginx handles SSL termination (HTTPS), Basic Authentication, Rate Limiting, serves the frontend, HLS
   stream, and proxies API requests to the FastAPI backend.
 
@@ -19,8 +21,11 @@ battery/solar status tracking via PiJuice.
 ### Root Directory
 
 - `battery/monitor.py`: Python daemon for battery/solar monitoring. Maintains `latest_battery_data.csv`.
-- `backend/api.py`: FastAPI application providing endpoints for battery data and media management.
-- `gallery/`: Directory for stored image captures.
+- `backend/`: FastAPI application directory.
+    - `api.py`: Entry point for the backend.
+    - `routes/`: Sub-modules for different API sections.
+    - `services/`: Specialized services (e.g., media management).
+- `gallery/`: Directory for stored image and video captures.
 - `config.py`: Central configuration (I2C address, GPS coords for solar/sunrise-sunset API, service management toggle,
   API settings).
 - `video_config.sh`: Video quality configuration (Resolution, Bitrate, Framerate).
@@ -82,7 +87,7 @@ battery/solar status tracking via PiJuice.
 ## 🚀 Future Roadmap (Targeted Enhancements)
 
 -   [ ] Motion detection and snippet recording.
--   [ ] Media gallery for captured clips.
+-   [x] Media gallery for captured clips.
 
 ---
 *Note: This file is maintained by the AI assistant to provide context for future requests. Keep it updated after any

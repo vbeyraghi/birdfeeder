@@ -6,7 +6,7 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 - Real-time video streaming from a connected camera (HLS)
 - Bird activity monitoring
-- Media Gallery: Take snapshots and view captured images
+- Media Gallery: Take snapshots, 10s video clips, and view captured media
 - Battery & Solar status monitoring with PiJuice (Real-time tracking and trend-based estimates)
 - Secure access via HTTPS and Basic Auth
 - Web-based interface built with Angular
@@ -225,7 +225,7 @@ Here are some ideas for future enhancements to the BirdFeeder project:
 
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
-- **Media Gallery**: Add a web gallery to view and manage saved video snippets and photos captured during activity.
+- **Media Gallery**: A web gallery to view and manage saved video snippets and photos captured during activity.
 - **Low-Latency Streaming**: Explore solutions lower latency streaming.
 
 ## Support

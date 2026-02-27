@@ -36,8 +36,11 @@ pip3 install fastapi uvicorn pydantic python-multipart
 # Ensure the streams and gallery directories exist and owned by the current user
 mkdir -p "${REPO_PATH}/streams"
 mkdir -p "${REPO_PATH}/gallery"
+mkdir -p "${REPO_PATH}/backend/routes"
+mkdir -p "${REPO_PATH}/backend/services"
 sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/streams"
 sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/gallery"
+sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/backend"
 
 # Firewall
 echo "Setting up firewall..."
