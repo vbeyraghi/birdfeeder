@@ -11,8 +11,8 @@ battery/solar status tracking via PiJuice.
 - **Backend/Monitoring**:
     - `battery/monitor.py`: Python daemon tracking power metrics and external solar radiation.
     - FastAPI Backend (`backend/api.py`): Modular API for battery data, media capture, and gallery management.
-        - `backend/routes/`: Route handlers for battery and media.
-        - `backend/services/`: Business logic for media capture (ffmpeg, rpicam).
+        - `backend/routes/`: Route handlers for battery (`battery.py`) and media (`media.py`).
+        - `backend/services/`: Business logic for media capture (`media_service.py`).
 - **Web Server**: Nginx handles SSL termination (HTTPS), Basic Authentication, Rate Limiting, serves the frontend, HLS
   stream, and proxies API requests to the FastAPI backend.
 
@@ -59,19 +59,21 @@ battery/solar status tracking via PiJuice.
 3. **Data Collection**: `battery/monitor.py` fetches local PiJuice metrics (I2C), external solar radiation, and
    sunrise/sunset data (Open-Meteo API). It logs to `battery_logs/`, generates PNG plots in `battery_plots/`, and
    updates `latest_battery_data.csv`.
-4. **Service Management**: `battery/monitor.py` can automatically start/stop `birdfeeder-stream.service` and
-   `nginx.service` at sunrise/sunset based on the `MANAGE_SERVICES_BY_SUNRISE_SUNSET` configuration.
-5. **Data Delivery**: Nginx proxies `/api/` requests to the FastAPI backend. The backend serves battery data parsed from
-   CSV and manages the media gallery.
-6. **Media Management**: Users can trigger image captures via `POST /api/capture`. Images are saved in `gallery/` and
-   can be retrieved via `GET /api/gallery`.
+4. **Service Management**: `battery/monitor.py` can automatically start/stop `birdfeeder-stream.service`,
+   `nginx.service`, and `birdfeeder-backend.service` at sunrise/sunset based on the `MANAGE_SERVICES_BY_SUNRISE_SUNSET`
+   configuration.
+5. **Data Delivery**: Nginx proxies `/api/` requests to the FastAPI backend. The backend serves battery and solar data
+   directly via JSON and manages the media gallery.
+6. **Media Management**: Users can trigger image captures via `POST /api/media/capture` and video clips via
+   `POST /api/media/clip`. Media is saved in `gallery/` and can be retrieved via `GET /api/media/gallery`.
 7. **HLS Streaming**: `rpicam-vid` outputs raw H.264 which `ffmpeg` segments into 2-second `.ts` files. The playlist (
    `stream.m3u8`) is kept at a 3-segment window.
 6. **User Access**: HTTPS on port 443. Protected by Basic Auth (`beyraghi-volant`).
 
 ## 🛡️ Security & Access
 
-- **TLS/SSL**: Self-signed ECDSA (prime256v1) certificates located in `nginx/secrets/tls/`.
+- **TLS/SSL**: Managed by Certbot (Let's Encrypt) for the configured domain. Certificates are stored in the standard
+  `/etc/letsencrypt/` directory, with Nginx configured to use them.
 - **Authentication**: Basic Auth via `.htpasswd` in `nginx/secrets/`.
 - **Rate Limiting**: Nginx restricts requests to 100r/s per IP to prevent DoS.
 - **Firewall**: `ufw` configured to allow only SSH (22) and HTTPS (443).

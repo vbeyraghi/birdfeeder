@@ -6,8 +6,8 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 - Real-time video streaming from a connected camera (HLS)
 - Bird activity monitoring
-- Media Gallery: Take snapshots, 10s video clips, and view captured media
-- Battery & Solar status monitoring with PiJuice (Real-time tracking and trend-based estimates)
+- Media Gallery: Take snapshots, 10s video clips, and view/download captured media
+- Battery & Solar status monitoring with PiJuice (Real-time tracking and estimates via FastAPI)
 - Secure access via HTTPS and Basic Auth
 - Web-based interface built with Angular
 - Automated setup and startup
@@ -57,11 +57,14 @@ Before running the application, configure your settings in `browser/assets/confi
 
 ```json 
 {
-  "streamUrl": "https://birdfeeder-beyragva.duckdns.org/streams/stream.m3u8",
+  "streamUrl": "/streams/stream.m3u8",
   "title": "Birdfeeder",
   "description": "Welcome to our live bird feeder camera. Watch nature up close!",
   "startStream": "Start stream",
-  "batteryDataUrl": "/api/battery-data",
+  "batteryDataUrl": "/api/battery/status",
+  "captureUrl": "/api/media/capture",
+  "clipUrl": "/api/media/clip",
+  "galleryUrl": "/api/media/gallery",
   "batteryDataInterval": 5
 }
 ```
@@ -72,7 +75,10 @@ Key settings to modify:
   `https://your-domain.duckdns.org/streams/stream.m3u8`).
 - `title`: Your preferred page title
 - `description`: Custom welcome message
-- `batteryDataUrl`: Endpoint for battery data JSON (default: `/api/battery`)
+- `batteryDataUrl`: Endpoint for battery data JSON (default: `/api/battery/status`)
+- `captureUrl`: Endpoint to trigger image capture (default: `/api/media/capture`)
+- `clipUrl`: Endpoint to trigger 10s video clip capture (default: `/api/media/clip`)
+- `galleryUrl`: Endpoint to list gallery media (default: `/api/media/gallery`)
 - `batteryDataInterval`: Frequency of battery data refresh in minutes (default: `5`)
 
 ### Video Quality
@@ -127,8 +133,9 @@ Key settings:
 
 - `INTERVAL_MINUTES`: Frequency of battery status updates.
 - `LAT`, `LON`: Geographic coordinates for fetching solar radiation and sunrise/sunset data.
-- `MANAGE_SERVICES_BY_SUNRISE_SUNSET`: If set to `True`, the script will automatically start `birdfeeder-stream.service`
-  and `nginx.service` at sunrise and stop them at sunset to conserve power.
+- `MANAGE_SERVICES_BY_SUNRISE_SUNSET`: If set to `True`, the script will automatically start
+  `birdfeeder-stream.service`, `nginx.service`, and `birdfeeder-backend.service` at sunrise and stop them at sunset to
+  conserve power.
 
 The script automatically cleans up old log files and plots, keeping only the **10 most recent** of each to save space.
 
@@ -141,10 +148,10 @@ This section covers the initial setup on the device and the steps required when 
 For a first-time setup on a new device, follow these steps:
 
 1. **Run the setup script** (`bash scripts/setup.sh`). This handles package installation, Nginx configuration, and
-   initial SSL setup.
-2. **Configure basic settings** in `browser/assets/config.json` (ensure `streamUrl` uses your domain).
+   automated SSL setup via Certbot.
+2. **Configure basic settings** in `browser/assets/config.json` (ensure `streamUrl` is correct).
 3. **Adjust video quality** in `scripts/video_config.sh` (optional).
-4. **Set up battery monitoring** in `battery/battery_status_config.py` (optional).
+4. **Set up battery monitoring** in `config.py` (optional).
 
 *Note: If you do not wish to monitor battery status, you should disable the `birdfeeder-battery` service:*
 
@@ -182,6 +189,16 @@ After completing the setup, the application starts automatically. You can access
 - Log in with the credentials created during setup.
 
 Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
+
+## API Endpoints
+
+The FastAPI backend provides the following endpoints:
+
+- `GET /api/battery/status`: Returns the latest battery and solar metrics as JSON.
+- `POST /api/media/capture`: Triggers a high-quality image capture.
+- `POST /api/media/clip`: Triggers a 10-second video clip capture.
+- `GET /api/media/gallery`: Returns a list of all filenames in the gallery.
+- `GET /api/media/gallery/{filename}`: Serves a specific image or video file.
 
 ## Automatic Startup
 
@@ -225,7 +242,6 @@ Here are some ideas for future enhancements to the BirdFeeder project:
 
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
-- **Media Gallery**: A web gallery to view and manage saved video snippets and photos captured during activity.
 - **Low-Latency Streaming**: Explore solutions lower latency streaming.
 
 ## Support

@@ -3,9 +3,9 @@
   "title": "Birdfeeder",
   "description": "Welcome to our live bird feeder camera. Watch nature up close!",
   "startStream": "Start stream",
-  "batteryDataUrl": "/api/battery",
-  "captureUrl": "/api/capture",
-  "clipUrl": "/api/clip",
-  "galleryUrl": "/api/gallery",
+  "batteryDataUrl": "/api/battery/status",
+  "captureUrl": "/api/media/capture",
+  "clipUrl": "/api/media/clip",
+  "galleryUrl": "/api/media/gallery",
   "batteryDataInterval": 5
 }
