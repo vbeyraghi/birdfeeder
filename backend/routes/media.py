@@ -35,3 +35,12 @@ def get_media(filename: str):
         media_type = "video/mp4"
 
     return FileResponse(filepath, media_type=media_type)
+
+
+@router.delete("/gallery/{filename}")
+def delete_media(filename: str):
+    """Deletes a specific media file from the gallery."""
+    success = MediaService.delete_media(filename)
+    if not success:
+        raise HTTPException(status_code=404, detail="Media not found")
+    return {"status": "success", "message": f"Deleted {filename}"}

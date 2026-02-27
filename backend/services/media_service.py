@@ -146,3 +146,14 @@ class MediaService:
             return files
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error listing gallery: {e}")
+
+    @staticmethod
+    def delete_media(filename: str):
+        try:
+            filepath = os.path.join(GALLERY_DIR, filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+                return True
+            return False
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting media: {e}")
