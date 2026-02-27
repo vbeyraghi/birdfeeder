@@ -45,34 +45,16 @@ sudo ufw allow 443/tcp
 sudo ufw enable -y
 sudo ufw status
 
-# --- SECURITY ARTIFACTS ---
-SECRETS_DIR="${REPO_PATH}/nginx/secrets"
-chmod 750 "${SECRETS_DIR}"
-sudo chgrp www-data "${SECRETS_DIR}"
-export BASIC_AUTH_FILE="${SECRETS_DIR}/.htpasswd"
-chmod 640 "${BASIC_AUTH_FILE}"
-
-# Basic Auth file (create if missing)
-export BASIC_AUTH_FILE="${SECRETS_DIR}/.htpasswd"
-if [[ ! -f "${BASIC_AUTH_FILE}" ]]; then
-  echo "Creating Basic Auth credentials (user: beyraghi-volant)…"
-  htpasswd -c "${BASIC_AUTH_FILE}" beyraghi-volant
+# --- SSL & DNS SETUP ---
+echo "SSL & DNS SETUP"
+read -p "Enter your DNS domain (e.g., birdfeeder-beyragva.duckdns.org): " DOMAIN
+if [[ -z "$DOMAIN" ]]; then
+  echo "Error: Domain is required for SSL setup."
+  exit 1
 fi
-chmod 600 "${BASIC_AUTH_FILE}"
 
-# Self-signed ECDSA cert (fast & light)
-CERT_DIR="${SECRETS_DIR}/tls"
-mkdir -p "${CERT_DIR}"
-chmod 700 "${CERT_DIR}"
-export SSL_CERT="${CERT_DIR}/cert.pem"
-export SSL_KEY="${CERT_DIR}/key.pem"
-if [[ ! -f "${SSL_CERT}" || ! -f "${SSL_KEY}" ]]; then
-  echo "Generating self-signed ECDSA certificate…"
-  openssl ecparam -genkey -name prime256v1 -out "${SSL_KEY}"
-  openssl req -new -x509 -key "${SSL_KEY}" -out "${SSL_CERT}" -days 365 -subj "/CN=raspberrypi"
-  chmod 600 "${SSL_KEY}"
-  chmod 644 "${SSL_CERT}"
-fi
+echo "Installing certbot and nginx plugin..."
+sudo apt install -y certbot python3-certbot-nginx
 
 # Video config file (create from example if missing)
 if [[ ! -f "${REPO_PATH}/scripts/video_config.sh" ]]; then
@@ -93,8 +75,18 @@ sudo ln -s "$REPO_PATH/nginx/hls.conf" /etc/nginx/conf.d/hls.conf
 sudo rm -f /etc/nginx/mime.types
 sudo ln -s "$REPO_PATH/nginx/mime.types" /etc/nginx/mime.types
 
-sudo rm -f /etc/nginx/.htpasswd
-sudo install -o root -g nogroup -m 640 "${SECRETS_DIR}/.htpasswd" /etc/nginx/.htpasswd
+SECRETS_DIR="${REPO_PATH}/nginx/secrets"
+mkdir -p "${SECRETS_DIR}"
+chmod 750 "${SECRETS_DIR}"
+sudo chgrp www-data "${SECRETS_DIR}"
+
+# Basic Auth file (create if missing)
+BASIC_AUTH_FILE="${SECRETS_DIR}/.htpasswd"
+if [[ ! -f "${BASIC_AUTH_FILE}" ]]; then
+  echo "Creating Basic Auth credentials (user: beyraghi-volant)…"
+  htpasswd -c "${BASIC_AUTH_FILE}" beyraghi-volant
+fi
+sudo install -o root -g nogroup -m 640 "${BASIC_AUTH_FILE}" /etc/nginx/.htpasswd
 
 echo "Rendering templated hls.conf with envsubst..."
 # Render to a temp file then move atomically
@@ -102,13 +94,20 @@ TMP_CONF="$(mktemp)"
 
 #   REPO_PATH         → absolute path to your repo
 #   BASIC_AUTH_FILE   → /etc/nginx/.htpasswd   (recommended path)
-#   SSL_CERT          → /etc/nginx/tls/cert.pem
-#   SSL_KEY           → /etc/nginx/tls/key.pem
-envsubst '${REPO_PATH} ${BASIC_AUTH_FILE} ${SSL_CERT} ${SSL_KEY}' \
+#   DOMAIN            → your domain (e.g. birdfeeder-beyragva.duckdns.org)
+export REPO_PATH BASIC_AUTH_FILE DOMAIN
+envsubst '${REPO_PATH} ${BASIC_AUTH_FILE} ${DOMAIN}' \
   < "${REPO_PATH}/nginx/hls.conf.tpl" \
   > "${TMP_CONF}"
 
 sudo mv "${TMP_CONF}" /etc/nginx/conf.d/hls.conf
+
+echo "Reloading nginx for certbot..."
+sudo systemctl reload nginx
+
+echo "Obtaining SSL certificate via certbot..."
+# Certbot will modify /etc/nginx/conf.d/hls.conf to add SSL directives
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "admin@$DOMAIN" --redirect || echo "Certbot failed, please run manually: sudo certbot --nginx -d $DOMAIN"
 
 echo "Relaxing permissions for nginx"
 chmod o+x $HOME

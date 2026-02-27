@@ -21,13 +21,18 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 ## Quick Setup
 
-1. Clone this repository:
+1. **Create a DNS Domain**:
+    - Go to [DuckDNS](https://www.duckdns.org/) or a similar service.
+    - Create a subdomain (e.g., `birdfeeder-beyragva.duckdns.org`).
+    - Point it to your home's external IP address.
+
+2. Clone this repository:
    ```bash
    git clone https://github.com/yourusername/birdfeeder.git
    cd birdfeeder
    ```
 
-2. Run the setup script:
+3. Run the setup script:
    ```bash
    bash scripts/setup.sh
    ```
@@ -35,11 +40,15 @@ A web application for monitoring and managing bird feeders with real-time video 
     - Update system packages
     - Install required dependencies (Python 3, FFmpeg, libcamera-apps, PiJuice)
     - Install Node.js v22.12.0
-    - Set up Nginx with SSL and Basic Auth
+    - Prompt for your DNS domain and set up Certbot for automated SSL certificates
+    - Set up Nginx with Basic Auth
     - Create a Python virtual environment for battery monitoring
     - Configure automatic startup via systemd services
 
-During setup, you will be prompted to create credentials for Basic Auth (default user: `beyraghi-volant`).
+During setup, you will be prompted to:
+
+- Enter your DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
+- Create credentials for Basic Auth (default user: `beyraghi-volant`).
 
 ## Configuration
 
@@ -47,7 +56,7 @@ Before running the application, configure your settings in `browser/assets/confi
 
 ```json 
 {
-  "streamUrl": "https://your-external-ip/streams/stream.m3u8",
+  "streamUrl": "https://birdfeeder-beyragva.duckdns.org/streams/stream.m3u8",
   "title": "Birdfeeder",
   "description": "Welcome to our live bird feeder camera. Watch nature up close!",
   "startStream": "Start stream"
@@ -56,8 +65,8 @@ Before running the application, configure your settings in `browser/assets/confi
 
 Key settings to modify:
 
-- `streamUrl`: Update with your camera's stream URL. Use your **external IP** or **domain name** if accessing from
-  outside your home network.
+- `streamUrl`: Update with your camera's stream URL. Use your **domain name** (e.g.,
+  `https://your-domain.duckdns.org/streams/stream.m3u8`).
 - `title`: Your preferred page title
 - `description`: Custom welcome message
 
@@ -138,9 +147,8 @@ Map the following ports in your router's settings to the Raspberry Pi's static l
 
 ### 3. External IP Configuration
 
-1. Find your **External IP Address** (e.g., by visiting [whatsmyip.org](https://www.whatsmyip.org)).
-2. Update `browser/assets/config.json` with the external IP or your domain name in the `streamUrl` field.
-3. If your external IP is dynamic, consider using a DDNS service (like No-IP or DuckDNS).
+1. Update `browser/assets/config.json` with your domain name (e.g.,
+   `https://birdfeeder-beyragva.duckdns.org/streams/stream.m3u8`) in the `streamUrl` field.
 
 ### 4. Configuration setup
 
@@ -162,11 +170,11 @@ sudo systemctl disable birdfeeder-battery
 
 ### 5. SSL Certificates
 
-The setup script generates a self-signed certificate. When accessing via HTTPS:
+The setup script uses **Certbot** to obtain a trusted SSL certificate from Let's Encrypt.
 
-- Your browser will show a security warning. You must click "Advanced" and "Proceed to..." to continue.
-- For a "clean" experience without warnings, you would need a domain name and a certificate from a CA like Let's
-  Encrypt.
+- This provides a "clean" experience without browser security warnings.
+- It requires a valid DNS domain pointing to your Raspberry Pi.
+- Ensure ports 80 and 443 are forwarded in your router before running the setup.
 
 ## Running the Application
 
@@ -177,11 +185,10 @@ The setup script generates a self-signed certificate. When accessing via HTTPS:
 
 2. Access the web interface:
     - Open your web browser
-    - Navigate to `https://your-external-ip/birdfeeder`
-    - You will need to accept the self-signed certificate if prompted.
+    - Navigate to `https://your-domain-name/birdfeeder`
     - Log in with the credentials created during setup.
 
-   Replace `your-external-ip` with your device's actual external IP address or domain name.
+   Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
 
 ## Automatic Startup
 
@@ -221,8 +228,7 @@ If you cannot access the web interface:
 
 Here are some ideas for future enhancements to the BirdFeeder project:
 
-- **Automated SSL Certificates**: Integrate [Certbot](https://certbot.eff.org/) with Let's Encrypt to replace
-  self-signed certificates with trusted ones (requires a domain name).
+- **Automated SSL Certificates**: Completed. Integrated [Certbot](https://certbot.eff.org/) with Let's Encrypt.
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
 - **Media Gallery**: Add a web gallery to view and manage saved video snippets and photos captured during activity.

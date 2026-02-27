@@ -3,29 +3,11 @@
 # -----------------------------------
 server {
     listen 80;
-    server_name _;
-
-    return 301 https://$host$request_uri;
-}
-
-# -----------------------------------
-# HTTPS on 443
-# -----------------------------------
-server {
-    listen 443 ssl http2;
-    server_name _;
+    server_name ${DOMAIN};
 
     root ${REPO_PATH};
 
-    ssl_certificate     ${SSL_CERT};
-    ssl_certificate_key ${SSL_KEY};
-
-    # Lightweight modern TLS settings
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ecdh_curve prime256v1;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1h;
+    # Certbot will manage ssl_certificate and ssl_certificate_key
 
     # HSTS (optional; enable once you’re certain)
     # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
