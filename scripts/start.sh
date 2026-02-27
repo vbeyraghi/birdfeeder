@@ -1,31 +1,16 @@
 #!/bin/bash
 
-# Ensure the streams directory exists
-cd "$(dirname "$0")"
-mkdir -p ./streams
-
-echo "Starting battery monitoring..."
-source /home/beyragva/birdfeeder/battery-env/bin/activate
-python3 battery_status.py &
-BATTERY_PID=$!
-
-cleanup() {
-  echo "Stopping servers..."
-  kill $BATTERY_PID 2>/dev/null
-
-  echo "Removing streams directory..."
-  rm -rf ./streams
-}
-
-# Trap CTRL+C (SIGINT) and EXIT
-trap cleanup SIGINT EXIT
+# Robustly find the repository root relative to this script
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Load video configuration if it exists, otherwise use defaults
-if [ -f "./video_config.sh" ]; then
-  source ./video_config.sh
+CONFIG_FILE="$REPO_ROOT/scripts/video_config.sh"
+if [ -f "$CONFIG_FILE" ]; then
+  source "$CONFIG_FILE"
 else
-  WIDTH=1920
-  HEIGHT=1080
+  WIDTH=1280
+  HEIGHT=720
   FRAMERATE=30
   BITRATE=2500000
 fi
@@ -36,7 +21,7 @@ rpicam-vid \
   --width ${WIDTH} --height ${HEIGHT} \
   --framerate ${FRAMERATE} \
   --bitrate ${BITRATE} \
-  --intra 60 \
+  --intra ${FRAMERATE} \
   --inline \
   -o - \
 | ffmpeg -hide_banner -loglevel error \
@@ -49,10 +34,10 @@ rpicam-vid \
   -c:v copy \
   -muxdelay 0 -muxpreload 0 \
   -f hls \
-  -hls_time 2 \
-  -hls_list_size 3 \
-  -hls_delete_threshold 1 \
+  -hls_time 1 \
+  -hls_list_size 20 \
+  -hls_delete_threshold 5 \
   -hls_flags delete_segments+append_list+omit_endlist+independent_segments+temp_file \
   -hls_allow_cache 0 \
-  -hls_segment_filename "./streams/seg_%05d.ts" \
-  ./streams/stream.m3u8
+  -hls_segment_filename "$REPO_ROOT/streams/seg_%05d.ts" \
+  "$REPO_ROOT/streams/stream.m3u8"

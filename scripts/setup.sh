@@ -23,17 +23,6 @@ sudo apt-get install -y nodejs
 echo "Installing the pyjuice tools"
 sudo apt install pijuice-base i2c-tools
 
-#echo "Installing NVM (Node Version Manager)..."
-#curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-# Load NVM into current shell session
-#export NVM_DIR="$HOME/.nvm"
-#. "$NVM_DIR/nvm.sh"
-
-#echo "Installing Node.js v22.12.0 via NVM..."
-#nvm install 22.12.0
-#nvm use 22.12.0
-#nvm alias default 22.12.0
-
 echo "Installing required Python packages..."
 # Create and activate a venv
 python3 -m venv battery-env
@@ -44,7 +33,7 @@ pip3 install matplotlib smbus2
 pip3 install requests
 
 # Ensure the streams directory exists and owned by the current user
-mkdir -p ./streams
+mkdir -p "${REPO_PATH}/streams"
 sudo chown -R "${CURRENT_USER}:${CURRENT_USER}" "${REPO_PATH}/streams"
 
 # Firewall
@@ -86,9 +75,9 @@ if [[ ! -f "${SSL_CERT}" || ! -f "${SSL_KEY}" ]]; then
 fi
 
 # Video config file (create from example if missing)
-if [[ ! -f "${REPO_PATH}/video_config.sh" ]]; then
+if [[ ! -f "${REPO_PATH}/scripts/video_config.sh" ]]; then
   echo "Creating video_config.sh from example..."
-  cp "${REPO_PATH}/video_config.example.sh" "${REPO_PATH}/video_config.sh"
+  cp "${REPO_PATH}/scripts/video_config.example.sh" "${REPO_PATH}/scripts/video_config.sh"
 fi
 
 echo "Installing nginx & envsubst..."
@@ -137,18 +126,16 @@ sudo nginx -t
 echo "Restarting nginx..."
 sudo systemctl restart nginx
 
-# Construct the cron job line
-CRON_LINE="@reboot bash $REPO_PATH/start.sh"
+echo "Setting up systemd services..."
+# Render systemd units
+envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-battery.service.tpl" | sudo tee /etc/systemd/system/birdfeeder-battery.service > /dev/null
+envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-stream.service.tpl" | sudo tee /etc/systemd/system/birdfeeder-stream.service > /dev/null
 
-# Check if the cron job already exists in root's crontab
-( sudo crontab -l 2>/dev/null | grep -Fxq "$CRON_LINE" ) && {
-    echo "Cron job already exists for root:"
-    echo "$CRON_LINE"
-    exit 0
-}
+# Reload systemd, enable and start services
+sudo systemctl daemon-reload
+sudo systemctl enable birdfeeder-battery.service
+sudo systemctl enable birdfeeder-stream.service
+sudo systemctl restart birdfeeder-battery.service
+sudo systemctl restart birdfeeder-stream.service
 
-# Add the new cron job to root's crontab
-( sudo crontab -l 2>/dev/null; echo "$CRON_LINE" ) | sudo crontab -
-
-echo "Cron job added to root's crontab:"
-echo "$CRON_LINE"
+echo "Systemd services are active. Use 'journalctl -u birdfeeder-stream' to see logs."

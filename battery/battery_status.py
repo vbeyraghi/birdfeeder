@@ -115,6 +115,20 @@ def plot_battery(timestamps, percentages, solar_values, plot_file):
     plt.close()
 
 
+def cleanup_old_files(directory, max_files=10):
+    files = [os.path.join(directory, f) for f in os.listdir(directory)
+             if os.path.isfile(os.path.join(directory, f))]
+    if len(files) <= max_files:
+        return
+    files.sort(key=os.path.getmtime)
+    for f in files[:-max_files]:
+        try:
+            os.remove(f)
+            print(f"Removed old file: {f}")
+        except Exception as e:
+            print(f"Failed to remove {f}: {e}")
+
+
 def main_loop():
     while True:
         now = datetime.datetime.now()
@@ -132,6 +146,9 @@ def main_loop():
         timestamps, percentages, solar_values = read_battery_data(log_file)
         if timestamps and percentages:
             plot_battery(timestamps, percentages, solar_values, plot_file)
+
+        cleanup_old_files(LOG_DIR, max_files=10)
+        cleanup_old_files(PLOT_DIR, max_files=10)
 
         time.sleep(INTERVAL_MINUTES * 60)
 
