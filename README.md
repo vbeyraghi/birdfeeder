@@ -82,7 +82,8 @@ Available parameters:
 - `FRAMERATE`: Frames per second (e.g., 30)
 - `BITRATE`: Bitrate in bps (e.g., 5000000 for 5Mbps)
 
-After changing these settings, restart the application by running `bash scripts/start.sh` or rebooting.
+After changing these settings, restart the application by running `sudo systemctl restart birdfeeder-stream` or
+rebooting.
 
 ### Performance & Latency Optimization
 
@@ -124,18 +125,34 @@ Key settings:
 
 The script automatically cleans up old log files and plots, keeping only the **10 most recent** of each to save space.
 
-## Deployment & Router Configuration
+## Configuration & Deployment
 
-When deploying the device at its final location, follow these steps to ensure external access:
+This section covers the initial setup on the device and the steps required when deploying it to a new location.
 
-### 1. Static IP Address
+### 1. Initial Configuration (From Scratch)
 
-Configure your router to assign a **static local IP address** to the Raspberry Pi (e.g., `192.168.1.50`) based on its
-MAC address. This ensures port forwarding rules remain valid.
+For a first-time setup on a new device, follow these steps:
 
-### 2. Port Forwarding
+1. **Run the setup script** (`bash scripts/setup.sh`). This handles package installation, Nginx configuration, and
+   initial SSL setup.
+2. **Configure basic settings** in `browser/assets/config.json` (ensure `streamUrl` uses your domain).
+3. **Adjust video quality** in `scripts/video_config.sh` (optional).
+4. **Set up battery monitoring** in `battery/battery_status_config.py` (optional).
 
-Map the following ports in your router's settings to the Raspberry Pi's static local IP:
+*Note: If you do not wish to monitor battery status, you should disable the `birdfeeder-battery` service:*
+
+```bash
+sudo systemctl stop birdfeeder-battery
+sudo systemctl disable birdfeeder-battery
+```
+
+### 2. Deployment
+
+When deploying the device at its final location, only the following steps are required:
+
+1. **Static IP Address**: Configure your router to assign a **static local IP address** to the Raspberry Pi (e.g.,
+   `192.168.1.50`) based on its MAC address. This ensures port forwarding rules remain valid.
+2. **Ports (Port Forwarding)**: Map the following ports in your router's settings to the Raspberry Pi's static local IP:
 
 | External Port | Internal Port | Protocol | Service                        |
 |:--------------|:--------------|:---------|:-------------------------------|
@@ -145,50 +162,19 @@ Map the following ports in your router's settings to the Raspberry Pi's static l
 
 *Note: Port 2222 is recommended for external SSH to avoid common brute-force attacks on the default port 22.*
 
-### 3. External IP Configuration
+3. **DNS**: Update your DNS domain (e.g., DuckDNS) to point to the **new external IP address** of the deployment
+   location.
 
-1. Update `browser/assets/config.json` with your domain name (e.g.,
-   `https://birdfeeder-beyragva.duckdns.org/streams/stream.m3u8`) in the `streamUrl` field.
+## Accessing the Web Interface
 
-### 4. Configuration setup
+After completing the setup, the application starts automatically. You can access it via:
 
-To summarize, for a complete setup you should:
+- Open your web browser
+- Navigate to `https://your-domain-name`
+- Click on the stream button
+- Log in with the credentials created during setup.
 
-1. **Run the setup script** (`bash scripts/setup.sh`).
-2. **Configure basic settings** in `browser/assets/config.json`.
-3. **Adjust video quality** in `scripts/video_config.sh` (optional).
-4. **Set up battery monitoring** in `battery/battery_status_config.py` (optional).
-5. **Configure router port forwarding** for external access.
-
-*Note: If you do not wish to monitor battery status, you should disable
-the `birdfeeder-battery` service:*
-
-```bash
-sudo systemctl stop birdfeeder-battery
-sudo systemctl disable birdfeeder-battery
-```
-
-### 5. SSL Certificates
-
-The setup script uses **Certbot** to obtain a trusted SSL certificate from Let's Encrypt.
-
-- This provides a "clean" experience without browser security warnings.
-- It requires a valid DNS domain pointing to your Raspberry Pi.
-- Ensure ports 80 and 443 are forwarded in your router before running the setup.
-
-## Running the Application
-
-1. Start the application:
-   ```bash
-   bash scripts/start.sh
-   ```
-
-2. Access the web interface:
-    - Open your web browser
-    - Navigate to `https://your-domain-name/birdfeeder`
-    - Log in with the credentials created during setup.
-
-   Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
+Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
 
 ## Automatic Startup
 
@@ -228,7 +214,6 @@ If you cannot access the web interface:
 
 Here are some ideas for future enhancements to the BirdFeeder project:
 
-- **Automated SSL Certificates**: Completed. Integrated [Certbot](https://certbot.eff.org/) with Let's Encrypt.
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
 - **Media Gallery**: Add a web gallery to view and manage saved video snippets and photos captured during activity.
