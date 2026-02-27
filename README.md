@@ -6,7 +6,7 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 - Real-time video streaming from a connected camera (HLS)
 - Bird activity monitoring
-- Battery & Solar status monitoring with PiJuice (Real-time tracking and trends)
+- Battery & Solar status monitoring with PiJuice (Real-time tracking and trend-based estimates)
 - Secure access via HTTPS and Basic Auth
 - Web-based interface built with Angular
 - Automated setup and startup
@@ -59,7 +59,9 @@ Before running the application, configure your settings in `browser/assets/confi
   "streamUrl": "https://birdfeeder-beyragva.duckdns.org/streams/stream.m3u8",
   "title": "Birdfeeder",
   "description": "Welcome to our live bird feeder camera. Watch nature up close!",
-  "startStream": "Start stream"
+  "startStream": "Start stream",
+  "batteryDataUrl": "/api/battery-data",
+  "batteryDataInterval": 5
 }
 ```
 
@@ -69,6 +71,8 @@ Key settings to modify:
   `https://your-domain.duckdns.org/streams/stream.m3u8`).
 - `title`: Your preferred page title
 - `description`: Custom welcome message
+- `batteryDataUrl`: Endpoint for battery data CSV (default: `/api/battery-data`)
+- `batteryDataInterval`: Frequency of battery data refresh in minutes (default: `5`)
 
 ### Video Quality
 

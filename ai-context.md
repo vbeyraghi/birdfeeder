@@ -29,7 +29,7 @@ battery/solar status tracking via PiJuice.
 
 ### `browser/` (Compiled Frontend)
 
-- `assets/config.json`: Runtime configuration for the UI (stream URL, page titles, UI orientation).
+- `assets/config.json`: Runtime configuration for the UI (stream URL, page titles, battery refresh interval).
 - `index.html`: Main SPA entry point.
 
 ### `nginx/`
@@ -54,8 +54,8 @@ battery/solar status tracking via PiJuice.
 4. **Service Management**: `battery_status.py` can automatically start/stop `birdfeeder-stream.service` and
    `nginx.service` at sunrise/sunset based on the `MANAGE_SERVICES_BY_SUNRISE_SUNSET` configuration.
 5. **Data Delivery**: Nginx serves `latest_battery_data.csv` via the `/api/battery-data` endpoint. The Angular
-   `SolarMonitor`
-   component fetches and parses this CSV to display real-time metrics and historical trends.
+   `SolarMonitor` component fetches and parses this CSV to display real-time metrics and historical trends. It
+   calculates battery uptime and charging rates dynamically using a trend-based analysis of the last 5 data points.
 5. **HLS Streaming**: `rpicam-vid` outputs raw H.264 which `ffmpeg` segments into 2-second `.ts` files. The playlist (
    `stream.m3u8`) is kept at a 3-segment window.
 6. **User Access**: HTTPS on port 443. Protected by Basic Auth (`beyraghi-volant`).
