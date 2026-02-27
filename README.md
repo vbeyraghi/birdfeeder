@@ -219,9 +219,6 @@ Here are some ideas for future enhancements to the BirdFeeder project:
 - **Media Gallery**: Add a web gallery to view and manage saved video snippets and photos captured during activity.
 - **Dynamic Scheduling**: Use a weather/meteo API to automatically turn the camera and streaming on at sunrise and off
   at sunset to conserve power.
-- **Local DNS Server**: Set up a local DNS server (like [Pi-hole](https://pi-hole.net/)
-  or [AdGuard Home](https://adguard.com/en/adguard-home/overview.html)) to assign a friendly local domain name (e.g.,
-  `birdfeeder.local`) to the device.
 - **Solar Power Integration**: Add monitoring for solar charging status and efficiency if using a solar-powered PiJuice
   setup (Solar radiation data is already being collected).
 - **Low-Latency Streaming**: Explore solutions lower latency streaming.
