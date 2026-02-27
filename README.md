@@ -6,7 +6,7 @@ A web application for monitoring and managing bird feeders with real-time video 
 
 - Real-time video streaming from a connected camera (HLS)
 - Bird activity monitoring
-- Battery status monitoring with PiJuice
+- Battery & Solar status monitoring with PiJuice (Real-time tracking and trends)
 - Secure access via HTTPS and Basic Auth
 - Web-based interface built with Angular
 - Automated setup and startup
@@ -121,7 +121,9 @@ on `battery/battery_status_config.example.py`.
 Key settings:
 
 - `INTERVAL_MINUTES`: Frequency of battery status updates.
-- `LAT`, `LON`: Geographic coordinates for fetching solar radiation data.
+- `LAT`, `LON`: Geographic coordinates for fetching solar radiation and sunrise/sunset data.
+- `MANAGE_SERVICES_BY_SUNRISE_SUNSET`: If set to `True`, the script will automatically start `birdfeeder-stream.service`
+  and `nginx.service` at sunrise and stop them at sunset to conserve power.
 
 The script automatically cleans up old log files and plots, keeping only the **10 most recent** of each to save space.
 
@@ -217,10 +219,6 @@ Here are some ideas for future enhancements to the BirdFeeder project:
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
 - **Media Gallery**: Add a web gallery to view and manage saved video snippets and photos captured during activity.
-- **Dynamic Scheduling**: Use a weather/meteo API to automatically turn the camera and streaming on at sunrise and off
-  at sunset to conserve power.
-- **Solar Power Integration**: Add monitoring for solar charging status and efficiency if using a solar-powered PiJuice
-  setup (Solar radiation data is already being collected).
 - **Low-Latency Streaming**: Explore solutions lower latency streaming.
 
 ## Support

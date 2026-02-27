@@ -132,6 +132,12 @@ envsubst '${CURRENT_USER} ${REPO_PATH}' < "${REPO_PATH}/systemd/birdfeeder-strea
 
 # Reload systemd, enable and start services
 sudo systemctl daemon-reload
+
+echo "Configuring sudoers for birdfeeder services..."
+SUDOERS_FILE="/etc/sudoers.d/birdfeeder"
+echo "${CURRENT_USER} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start birdfeeder-stream.service, /usr/bin/systemctl stop birdfeeder-stream.service, /usr/bin/systemctl start nginx.service, /usr/bin/systemctl stop nginx.service" | sudo tee "${SUDOERS_FILE}" > /dev/null
+sudo chmod 440 "${SUDOERS_FILE}"
+
 sudo systemctl enable birdfeeder-battery.service
 sudo systemctl enable birdfeeder-stream.service
 sudo systemctl restart birdfeeder-battery.service

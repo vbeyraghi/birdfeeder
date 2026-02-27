@@ -59,4 +59,21 @@ server {
         autoindex off;
         try_files $uri =404;
     }
+
+    # -------------------------
+    # Battery Data at /api/battery-data
+    # -------------------------
+    location /api/battery-data {
+        # Basic Auth
+        auth_basic "Restricted Stream";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+
+        # Rate limit (uses zone from nginx.conf)
+        limit_req zone=mylimit burst=100 nodelay;
+
+        alias ${REPO_PATH}/battery/battery_logs/latest_battery_data.csv;
+        default_type text/csv;
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Cache-Control "no-store" always;
+    }
 }

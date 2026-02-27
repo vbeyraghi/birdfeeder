@@ -4,6 +4,7 @@
 LOG_DIR = "battery_logs"
 PLOT_DIR = "battery_plots"
 INTERVAL_MINUTES = 5
+MANAGE_SERVICES_BY_SUNRISE_SUNSET = True
 
 LAT = 50.6462208
 LON = 4.571136
