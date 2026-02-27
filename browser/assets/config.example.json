@@ -5,6 +5,7 @@
   "startStream": "Start stream",
   "batteryDataUrl": "/api/battery",
   "captureUrl": "/api/capture",
+  "clipUrl": "/api/clip",
   "galleryUrl": "/api/gallery",
   "batteryDataInterval": 5
 }
