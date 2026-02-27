@@ -157,7 +157,7 @@ Here are some ideas for future enhancements to the BirdFeeder project:
   automatic restarts, and centralized logging.
 - **Solar Power Integration**: Add monitoring for solar charging status and efficiency if using a solar-powered PiJuice
   setup.
-- **Low-Latency Streaming**: Explore WebRTC for even lower latency streaming compared to HLS.
+- **Low-Latency Streaming**: Explore solutions lower latency streaming.
 
 ## Support
 

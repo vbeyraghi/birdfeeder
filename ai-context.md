@@ -62,7 +62,7 @@ battery/solar status tracking via PiJuice.
 
 ## 📊 Technical Specs
 
-- **Video**: Configurable via `video_config.sh` (default: 4K @ 60fps @ 25Mbps).
+- **Video**: Configurable via `video_config.sh` (default: 1080p @ 30fps).
 - **Power Monitoring**: I2C (Address 0x14) communication with PiJuice.
 - **Environment**: Python 3.x (venv: `battery-env`), Node.js v22, Nginx.
 - **Solar Data**: Open-Meteo API (Latitude: 50.646, Longitude: 4.571).
