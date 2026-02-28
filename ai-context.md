@@ -74,7 +74,7 @@ battery/solar status tracking via PiJuice.
 
 - **TLS/SSL**: Managed by Certbot (Let's Encrypt) for the configured domain. Certificates are stored in the standard
   `/etc/letsencrypt/` directory, with Nginx configured to use them.
-- **Authentication**: Basic Auth via `.htpasswd` in `nginx/secrets/`.
+- **Authentication**: Basic Auth via `.htpasswd` in `nginx/secrets/`. Manage users via `scripts/manage_users.sh`.
 - **Rate Limiting**: Nginx restricts requests to 100r/s per IP to prevent DoS.
 - **Firewall**: `ufw` configured to allow only SSH (22) and HTTPS (443).
 

@@ -190,6 +190,22 @@ After completing the setup, the application starts automatically. You can access
 
 Replace `your-domain-name` with your actual DNS domain (e.g., `birdfeeder-beyragva.duckdns.org`).
 
+### User Management
+
+To manage access to the web interface and stream, use the `scripts/manage_users.sh` script:
+
+- **Add or Update a User**:
+  ```bash
+  bash scripts/manage_users.sh add <username>
+  ```
+- **Remove a User**:
+  ```bash
+  bash scripts/manage_users.sh remove <username>
+  ```
+
+This script automatically updates the local `.htpasswd` file, synchronizes it with Nginx, and reloads the service. No
+need to re-run `setup.sh` just to manage users.
+
 ## API Endpoints
 
 The FastAPI backend provides the following endpoints:
@@ -242,6 +258,7 @@ Here are some ideas for future enhancements to the BirdFeeder project:
 
 - **Motion Detection & Recording**: Implement motion detection to start recording or take snapshots only when activity
   is detected, saving storage and power.
+- **Meteo forecast**: Make predictions about the battery estimated life based on meteo forecast.
 - **Low-Latency Streaming**: Explore solutions lower latency streaming.
 
 ## Support
