@@ -3,6 +3,8 @@ Description=BirdFeeder Backend Service
 After=network.target
 
 [Service]
+CPUQuota=100%
+CPUWeight=1000
 Type=simple
 User=${CURRENT_USER}
 WorkingDirectory=${REPO_PATH}/backend
