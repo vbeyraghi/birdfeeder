@@ -2,5 +2,11 @@
   "streamUrl": "/streams/stream.m3u8",
   "title": "Birdfeeder",
   "description": "Welcome to our live bird feeder camera. Watch nature up close!",
-  "startStream": "Start stream"
+  "startStream": "Start stream",
+  "batteryDataUrl": "/api/battery/status",
+  "captureUrl": "/api/media/capture",
+  "clipUrl": "/api/media/clip",
+  "galleryUrl": "/api/media/gallery",
+  "deleteMediaUrl": "/api/media/gallery",
+  "batteryDataInterval": 5
 }
