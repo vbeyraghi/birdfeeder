@@ -24,7 +24,7 @@ class MediaService:
                         ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
                          "-live_start_index", "-1", "-i", m3u8_path,
                          "-frames:v", "1", "-q:v", "2", filepath],
-                        capture_output=True, text=True, timeout=15
+                        capture_output=True, text=True, timeout=30
                     )
                     if result.returncode == 0 and os.path.exists(filepath):
                         return {"status": "success", "filename": filename, "timestamp": timestamp,
@@ -104,7 +104,7 @@ class MediaService:
                     result = subprocess.run(
                         ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
                          "-f", "concat", "-safe", "0", "-i", concat_file, "-c", "copy", filepath],
-                        capture_output=True, text=True, timeout=15
+                        capture_output=True, text=True, timeout=30
                     )
                     os.remove(concat_file)
                     if result.returncode == 0 and os.path.exists(filepath):
@@ -122,7 +122,7 @@ class MediaService:
             h264_tmp = filepath.replace(".mp4", ".h264")
             result = subprocess.run(
                 ["rpicam-vid", "-t", "10000", "-o", h264_tmp, "--nopreview"],
-                capture_output=True, text=True, timeout=15
+                capture_output=True, text=True, timeout=30
             )
             if result.returncode != 0:
                 if os.path.exists(h264_tmp): os.remove(h264_tmp)
