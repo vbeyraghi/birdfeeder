@@ -1,11 +1,13 @@
 import {Component, inject, signal} from '@angular/core';
 import {VideoStream} from "./components/video-stream/video-stream";
+import {SolarMonitor} from "./components/solar-monitor/solar-monitor";
+import {Gallery} from "./components/gallery/gallery";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {ConfigService} from "./services/config-service";
 
 @Component({
     selector: 'app-root',
-    imports: [VideoStream],
+    imports: [VideoStream, SolarMonitor, Gallery],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })
