@@ -1,0 +1,79 @@
+<div [class.collapsed]="isCollapsed()" class="solar-card">
+    <div (click)="toggleCollapse()" class="card-header">
+        <div class="header-main">
+            <span class="icon">☀️</span>
+            <span class="title">Solar & Power Status</span>
+        </div>
+        @if (isCollapsed() && lastData(); as data) {
+            <div class="header-stats">
+                <span class="mini-stat">{{ data.percentage }}%</span>
+                <span class="mini-stat">{{ data.solar_radiation_Wm2 }} W/m²</span>
+            </div>
+        }
+        <span class="arrow">{{ isCollapsed() ? '▼' : '▲' }}</span>
+    </div>
+
+    @if (!isCollapsed() && lastData(); as data) {
+        <div class="card-content">
+            <div class="main-metrics">
+                <div class="metric-box battery">
+                    <div class="metric-value">{{ data.percentage }}%</div>
+                    <div class="metric-label">Battery Charge</div>
+                    <div class="battery-visual">
+                        <div [class.low]="(data.percentage ?? 0) < 20" [style.width.%]="data.percentage"
+                             class="battery-level"></div>
+                    </div>
+                </div>
+                <div class="metric-box solar">
+                    <div class="metric-value">{{ data.solar_radiation_Wm2 }} <span class="unit">W/m²</span></div>
+                    <div class="metric-label">Solar Radiation</div>
+                    @if (efficiency()) {
+                        <div class="solar-efficiency">
+                            Efficiency: {{ efficiency() | number:'1.1-1' }}%
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="insights">
+                <div class="insight-item">
+                    <span class="insight-icon">⏳</span>
+                    <span class="insight-text">Est. Uptime: <strong>{{ estimatedUptime() }}</strong></span>
+                </div>
+                <div class="insight-item">
+                    <span class="insight-icon">⚡</span>
+                    <span class="insight-text">Time to Full: <strong>{{ timeToFull() }}</strong></span>
+                </div>
+                <div class="insight-item">
+                    <span class="insight-icon">📊</span>
+                    <span class="insight-text">24h Harvest: <strong>{{ dailyHarvest() }} Wh</strong></span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <svg class="sparkline" viewBox="0 0 400 100">
+                    <polyline
+                            [attr.points]="batteryPoints()"
+                            fill="none"
+                            stroke="#277fae"
+                            stroke-width="2"
+                    />
+                    <polyline
+                            [attr.points]="solarPoints()"
+                            fill="none"
+                            stroke="#f1c40f"
+                            stroke-dasharray="2,2"
+                            stroke-width="1"
+                    />
+                </svg>
+                <div class="chart-labels">
+                    <span>Trend (Last 24h)</span>
+                    <span class="legend">
+                    <span class="legend-item"><i class="dot battery"></i> Bat</span>
+                    <span class="legend-item"><i class="dot solar"></i> Sun</span>
+                </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
