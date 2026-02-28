@@ -1,0 +1,92 @@
+<div [class.collapsed]="isCollapsed()" class="gallery-card">
+    <div (click)="toggleCollapse()" class="card-header">
+        <div class="header-main">
+            <span class="icon">🖼️</span>
+            <span class="title">Gallery</span>
+        </div>
+        @if (isCollapsed() && media().length > 0) {
+            <div class="header-stats">
+                <span class="mini-stat">{{ media().length }} items</span>
+            </div>
+        }
+        <span class="arrow">{{ isCollapsed() ? '▼' : '▲' }}</span>
+    </div>
+
+    @if (!isCollapsed()) {
+        <div class="card-content">
+            <div class="gallery-controls">
+                <button (click)="captureImage()" [attr.title]="!isStreamActive() ? 'Stream must be started to take pictures' : ''"
+                        [disabled]="!isStreamActive() || isCapturing() || isClipping()"
+                        class="capture-button">
+                    <i class="camera-icon"></i>
+                    {{ isCapturing() ? 'Capturing...' : 'Take Picture' }}
+                </button>
+                <button (click)="captureClip()" [attr.title]="!isStreamActive() ? 'Stream must be started to take clips' : ''"
+                        [disabled]="!isStreamActive() || isCapturing() || isClipping()"
+                        class="clip-button">
+                    <i class="video-icon"></i>
+                    {{ isClipping() ? 'Recording...' : 'Take Clip (10s)' }}
+                </button>
+            </div>
+
+            <div class="gallery-grid">
+                @for (item of media(); track item.filename) {
+                    <div (click)="selectMedia(item)" [class.video-item]="item.type === 'video'" class="gallery-item">
+                        @if (item.type === 'image') {
+                            <img [alt]="item.filename" [src]="item.url" loading="lazy">
+                        }
+                        @if (item.type === 'video') {
+                            <div class="video-preview-container">
+                                <video [src]="item.url + '#t=0.5'" muted playsinline preload="metadata"></video>
+                                <div class="video-overlay-info">
+                                    <span class="video-icon">🎬</span>
+                                    <span class="video-label">10s Clip</span>
+                                </div>
+                            </div>
+                        }
+                        <span class="timestamp">{{ item.timestamp }}</span>
+                        @if (item.type === 'video') {
+                            <span class="play-overlay">▶</span>
+                        }
+                    </div>
+                } @empty {
+                    <div class="no-images">No media captured yet.</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@if (selectedMedia(); as item) {
+    <div (click)="selectMedia(null)" class="modal">
+        <div (click)="$event.stopPropagation()" class="modal-content">
+            <button (click)="selectMedia(null)" aria-label="Close" class="modal-close">
+                <span class="close-icon">&times;</span>
+            </button>
+
+            @if (item.type === 'image') {
+                <img [alt]="item.filename" [src]="item.url">
+            }
+
+            @if (item.type === 'video') {
+                <video [src]="item.url" autoplay controls playsinline>
+                    Your browser does not support the video tag.
+                </video>
+            }
+
+            <div class="modal-footer">
+                <div class="modal-caption">{{ item.timestamp }} ({{ item.filename }})</div>
+                <div class="modal-actions">
+                    <a [download]="item.filename" [href]="item.url" class="download-button" title="Download">
+                        <span class="download-icon">📥</span>
+                        Download
+                    </a>
+                    <button (click)="deleteMedia(item)" [disabled]="isDeleting()" class="delete-button" title="Delete">
+                        <span class="delete-icon">🗑️</span>
+                        {{ isDeleting() ? 'Deleting...' : 'Delete' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
